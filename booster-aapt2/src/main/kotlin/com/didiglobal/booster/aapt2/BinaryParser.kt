@@ -4,6 +4,7 @@ import sun.nio.ch.FileChannelImpl
 import java.io.Closeable
 import java.io.File
 import java.io.InputStream
+import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
@@ -197,11 +198,14 @@ class BinaryParser : Closeable {
         return result
     }
 
-    fun skip(n: Int) = _buffer.position(_buffer.position() + n)
+    fun skip(n: Int): () -> Unit = {
+        val buf = (_buffer as Buffer)
+        buf.position(buf.position() + n)
+    }
 
-    fun seek(pos: Int) = _buffer.position(pos)
+    fun seek(pos: Int) = (_buffer as Buffer).position(pos)
 
-    fun tell() = _buffer.position()
+    fun tell() = (_buffer as Buffer).position()
 
     override fun close() {
         _channel?.close()
