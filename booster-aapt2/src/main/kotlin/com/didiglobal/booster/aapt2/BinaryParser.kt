@@ -1,10 +1,12 @@
 package com.didiglobal.booster.aapt2
 
+import sun.nio.ch.FileChannelImpl
 import java.io.Closeable
 import java.io.File
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.StandardOpenOption
 
@@ -203,6 +205,12 @@ class BinaryParser : Closeable {
 
     override fun close() {
         _channel?.close()
+        unmapBuffer(_buffer as MappedByteBuffer)
     }
 
+    private fun unmapBuffer(buffer: MappedByteBuffer) {
+        val method = FileChannelImpl::class.java.getDeclaredMethod("unmap", MappedByteBuffer::class.java)
+        method.isAccessible = true
+        method.invoke(FileChannelImpl::class.java, buffer)
+    }
 }
